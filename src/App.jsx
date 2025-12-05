@@ -6,95 +6,111 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
 
-  // Fetch API data
+  
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.log(err));
+    const saved = localStorage.getItem("products");
+
+    if (saved) {
+      setProducts(JSON.parse(saved));
+    } else {
+      fetch("https://fakestoreapi.com/products")
+        .then((res) => res.json())
+        .then((data) => {
+          setProducts(data);
+          localStorage.setItem("products", JSON.stringify(data));
+        })
+        .catch((err) => console.log(err));
+    }
   }, []);
+
+  // Save every update to localStorage
+  const updateLocalStorage = (list) => {
+    localStorage.setItem("products", JSON.stringify(list));
+  };
 
   // Add product
   const handleAdd = (newProduct) => {
-    setProducts([...products, newProduct]);
+    const updated = [...products, newProduct];
+    setProducts(updated);
+    updateLocalStorage(updated);
   };
 
   // Update product
-  const handleUpdate = (updated) => {
-    const updatedList = products.map((item) =>
-      item.id === updated.id ? updated : item
+  const handleUpdate = (updatedData) => {
+    const updated = products.map((item) =>
+      item.id === updatedData.id ? updatedData : item
     );
-    setProducts(updatedList);
+
+    setProducts(updated);
+    updateLocalStorage(updated);
     setEditingProduct(null);
   };
 
   // Delete product
-  const handleDelete = async (id) => {
-    await fetch(`https://fakestoreapi.com/products/${id}`, {
-      method: "DELETE",
-    });
-    setProducts(products.filter((p) => p.id !== id));
+  const handleDelete = (id) => {
+    const updated = products.filter((p) => p.id !== id);
+    setProducts(updated);
+    updateLocalStorage(updated);
   };
 
-  // Search filter
-  const filteredProducts = products.filter((p) =>
+  // Search
+  const filtered = products.filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Product Dashboard</h1>
+     <center> <h1>Product Dashboard</h1></center>
 
-      {/* Search Filter */}
+      {/* Search */}
       <input
         type="text"
         placeholder="Search product..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ padding: "8px", width: "300px", marginBottom: "20px" }}
+        style={{
+          padding: "8px",
+          width: "300px",
+          marginBottom: "20px",
+        }}
       />
 
-      {/* Add / Edit Product Form */}
+      {/* Add/Edit Form */}
       <ProductForm
         onAdd={handleAdd}
         onUpdate={handleUpdate}
         editingProduct={editingProduct}
       />
 
-      {/* Products Table */}
-      <table
-        border="1"
-        width="100%"
-        cellPadding="10"
-        style={{ marginTop: "20px" }}
-      >
+      {/* Table */}
+      <table width="100%" border="1" cellPadding="10">
         <thead>
           <tr>
             <th>ID</th>
             <th>Image</th>
             <th>Title</th>
-            <th>Price ($)</th>
+            <th>Price</th>
             <th>Category</th>
             <th>Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {filteredProducts.map((item) => (
+          {filtered.map((item) => (
             <tr key={item.id}>
               <td>{item.id}</td>
               <td>
-                <img src={item.image} width="50" alt="" />
+                <img src={item.image} width="50" />
               </td>
               <td>{item.title}</td>
-              <td>{item.price}</td>
+              <td>₹ {item.price}</td>
               <td>{item.category}</td>
 
               <td>
                 <button onClick={() => setEditingProduct(item)}>Edit</button>
                 <button
                   onClick={() => handleDelete(item.id)}
-                  style={{ marginLeft: "10px", color: "red" }}
+                  style={{ color: "red", marginLeft: "10px" }}
                 >
                   Delete
                 </button>

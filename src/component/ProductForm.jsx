@@ -12,82 +12,69 @@ export default function ProductForm({ onAdd, onUpdate, editingProduct }) {
       setPrice(editingProduct.price);
       setCategory(editingProduct.category);
       setImage(editingProduct.image);
+    } else {
+      setTitle("");
+      setPrice("");
+      setCategory("");
+      setImage("");
     }
   }, [editingProduct]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const productData = { title, price, category, image };
+    // Creating a fake ID for new product
+    const id = editingProduct ? editingProduct.id : Date.now();
 
-    //editing product
+    const productData = { id, title, price, category, image };
+
     if (editingProduct) {
-      const res = await fetch(
-        `https://fakestoreapi.com/products/${editingProduct.id}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(productData),
-        }
-      );
-      const updated = await res.json();
-      onUpdate(updated);
+      onUpdate(productData);
     } else {
-      // Add product
-      const res = await fetch("https://fakestoreapi.com/products", {
-        method: "POST",
-        body: JSON.stringify(productData),
-      });
-      const newProduct = await res.json();
-      onAdd(newProduct);
+      onAdd(productData);
     }
-
-    setTitle("");
-    setPrice("");
-    setCategory("");
-    setImage("");
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
-      <h2>{editingProduct ? "Edit Product" : "Add Product"}</h2>
-
+    <form
+      onSubmit={handleSubmit}
+      style={{ marginBottom: "20px", display: "flex", gap: "10px" }}
+    >
       <input
         type="text"
-        placeholder="Product Title"
+        placeholder="Title"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
         required
-        style={{ padding: "8px", width: "300px", marginRight: "10px" }}
+        onChange={(e) => setTitle(e.target.value)}
       />
 
       <input
         type="number"
         placeholder="Price"
         value={price}
-        onChange={(e) => setPrice(e.target.value)}
         required
-        style={{ padding: "8px", width: "150px", marginRight: "10px" }}
+        onChange={(e) => setPrice(e.target.value)}
       />
 
       <input
         type="text"
         placeholder="Category"
         value={category}
-        onChange={(e) => setCategory(e.target.value)}
         required
-        style={{ padding: "8px", width: "200px", marginRight: "10px" }}
+        onChange={(e) => setCategory(e.target.value)}
       />
 
       <input
         type="text"
         placeholder="Image URL"
         value={image}
-        onChange={(e) => setImage(e.target.value)}
         required
-        style={{ padding: "8px", width: "250px", marginRight: "10px" }}
+        onChange={(e) => setImage(e.target.value)}
       />
 
-      <button type="submit">{editingProduct ? "Update" : "Add"}</button>
+      <button type="submit">
+        {editingProduct ? "Update" : "Add"}
+      </button>
     </form>
   );
 }
