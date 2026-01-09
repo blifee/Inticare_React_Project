@@ -23,7 +23,6 @@ export default function ProductForm({ onAdd, onUpdate, editingProduct }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Creating a fake ID for new product
     const id = editingProduct ? editingProduct.id : Date.now();
 
     const productData = { id, title, price, category, image };

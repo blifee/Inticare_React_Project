@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import ProductForm from "./component/ProductForm";
+import Toast from "./component/Toast";
 
 export default function App() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
+  const [toast, setToast] = useState(null);
 
-  
   useEffect(() => {
     const saved = localStorage.getItem("products");
 
@@ -23,9 +24,12 @@ export default function App() {
     }
   }, []);
 
-  // Save every update to localStorage
   const updateLocalStorage = (list) => {
     localStorage.setItem("products", JSON.stringify(list));
+  };
+
+  const showToast = (message, type) => {
+    setToast({ message, type });
   };
 
   // Add product
@@ -33,6 +37,7 @@ export default function App() {
     const updated = [...products, newProduct];
     setProducts(updated);
     updateLocalStorage(updated);
+    showToast("Product added successfully!", "success");
   };
 
   // Update product
@@ -44,6 +49,7 @@ export default function App() {
     setProducts(updated);
     updateLocalStorage(updated);
     setEditingProduct(null);
+    showToast("Product updated successfully!", "success");
   };
 
   // Delete product
@@ -51,18 +57,19 @@ export default function App() {
     const updated = products.filter((p) => p.id !== id);
     setProducts(updated);
     updateLocalStorage(updated);
+    showToast("Product deleted!", "delete");
   };
 
-  // Search
   const filtered = products.filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div style={{ padding: "20px" }}>
-     <center> <h1>Product Dashboard</h1></center>
+      <center>
+        <h1>Product Dashboard</h1>
+      </center>
 
-      {/* Search */}
       <input
         type="text"
         placeholder="Search product..."
@@ -119,6 +126,15 @@ export default function App() {
           ))}
         </tbody>
       </table>
+
+      {/* Toast Popup */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
