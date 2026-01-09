@@ -52,9 +52,15 @@ export default function App() {
     showToast("Product updated successfully!", "success");
   };
 
-  // Delete product
-  const handleDelete = (id) => {
-    const updated = products.filter((p) => p.id !== id);
+  // DELETE WITH CONFIRMATION
+  const handleDelete = (item) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${item.title}"?`
+    );
+
+    if (!confirmDelete) return;
+
+    const updated = products.filter((p) => p.id !== item.id);
     setProducts(updated);
     updateLocalStorage(updated);
     showToast("Product deleted!", "delete");
@@ -114,9 +120,12 @@ export default function App() {
               <td>{item.category}</td>
 
               <td>
-                <button onClick={() => setEditingProduct(item)}>Edit</button>
+                <button onClick={() => setEditingProduct(item)}>
+                  Edit
+                </button>
+
                 <button
-                  onClick={() => handleDelete(item.id)}
+                  onClick={() => handleDelete(item)}
                   style={{ color: "red", marginLeft: "10px" }}
                 >
                   Delete
